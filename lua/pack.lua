@@ -77,10 +77,11 @@ require("mini.surround").setup()
 -- | `sn` | Update n_lines |
 -- | `l` / `n` | as suffix for prev/next |
 
---- mini picker ---
+-- --- mini picker ---
 local MiniPick = require("mini.pick")
 local MiniExtra = require("mini.extra")
 MiniPick.setup()
+
 MiniExtra.setup()
 
 
