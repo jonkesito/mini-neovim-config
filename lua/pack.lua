@@ -126,6 +126,10 @@ MiniDiff.setup({
     source = MiniDiff.gen_source.git({ index = false }),
 })
 
+local minigit = require("mini.git")
+
+minigit.setup({})
+
 
 -- Integración de Git para ver cambios en el margen izquierdo
 require("mini.diff").setup({

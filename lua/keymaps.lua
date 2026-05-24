@@ -77,3 +77,20 @@ vim.api.nvim_create_autocmd("FileType", {
     end,
 })
 
+
+-- =====================================================================
+-- CONTROL INTEGRADO DE GIT (MINI.GIT)
+-- =====================================================================
+
+-- 1. Ver el estado de Git (Git Status) en una ventana dividida rápida
+vim.keymap.set("n", "<leader>gs", "<CMD>Git status<CR>", { silent = true, desc = "Git Status" })
+
+-- 2. Hacer un commit rápido de tus cambios guardados
+vim.keymap.set("n", "<leader>gc", "<CMD>Git commit<CR>", { desc = "Git Commit" })
+
+-- 3. Ver qué datos de Git corresponden a la línea bajo el cursor (Contexto)
+vim.keymap.set("n", "<leader>gh", function() 
+    require("mini.git").show_at_cursor() 
+end, { desc = "Mostrar info de Git bajo el cursor" })
+
+
