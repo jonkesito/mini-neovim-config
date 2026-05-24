@@ -31,6 +31,8 @@ MiniFiles.setup({
         end,
     })
 
+    vim.keymap.set("n", "<leader>w", "<cmd>w<CR>",{ desc = "Save"})
+
 vim.keymap.set("n", "<leader>e", "<cmd>lua MiniFiles.open()<CR>", { desc = "Toggle mini file explorer" })
 vim.keymap.set("n", "<leader>-", function()
     MiniFiles.open(vim.api.nvim_buf_get_name(0), false)
@@ -69,6 +71,15 @@ local MiniPick = require("mini.pick")
 local MiniExtra = require("mini.extra")
 MiniPick.setup()
 MiniExtra.setup()
+
+
+local MiniIcons = require("mini.icons").setup({
+    style = 'glyph',
+})
+
+MiniIcons.tweak_lsp_kind()
+pcall(function() MiniIcons.mock_nvim_web_devicons() end)
+
 
 -- keymaps
 vim.keymap.set("n", "<leader>pf", function() MiniPick.builtin.files() end, { desc = "Mini File Picker" })
