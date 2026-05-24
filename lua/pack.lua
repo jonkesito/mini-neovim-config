@@ -18,20 +18,20 @@ MiniFiles.setup({
         synchronize = "",
     },
 })
-    -- Crear un atajo personalizado exclusivo para las ventanas de mini.files
-    vim.api.nvim_create_autocmd("User", {
-        pattern = "MiniFilesBufferCreate",
-        callback = function(args)
-            local buf_id = args.data.buf_id
-            
-            -- Mapear <Leader>w (Espacio + w) para guardar los cambios
-            vim.keymap.set("n", "<leader>w", function()
-                require("mini.files").synchronize()
-            end, { buffer = buf_id, desc = "Guardar cambios en mini.files" })
-        end,
-    })
+-- Crear un atajo personalizado exclusivo para las ventanas de mini.files
+vim.api.nvim_create_autocmd("User", {
+    pattern = "MiniFilesBufferCreate",
+    callback = function(args)
+        local buf_id = args.data.buf_id
 
-    vim.keymap.set("n", "<leader>w", "<cmd>w<CR>",{ desc = "Save"})
+        -- Mapear <Leader>w (Espacio + w) para guardar los cambios
+        vim.keymap.set("n", "<leader>w", function()
+            require("mini.files").synchronize()
+        end, { buffer = buf_id, desc = "Guardar cambios en mini.files" })
+    end,
+})
+
+vim.keymap.set("n", "<leader>w", "<cmd>w<CR>",{ desc = "Save"})
 
 vim.keymap.set("n", "<leader>e", "<cmd>lua MiniFiles.open()<CR>", { desc = "Toggle mini file explorer" })
 vim.keymap.set("n", "<leader>-", function()
@@ -41,7 +41,7 @@ end, { desc = "Toggle into currently opened file" })
 
 ---- mini notify ----
 require("mini.notify").setup({
-	-- only show messages
+    -- only show messages
     content = {
         format = function(notif)
             return notif.msg
@@ -52,6 +52,17 @@ require("mini.notify").setup({
 --- mini cmdline completion ---
 require("mini.cmdline").setup({
     autocorrect = { enable = false }
+})
+
+local statusline = require("mini.statusline")
+
+statusline.setup({
+    content = {
+        active = nil,
+        inactive = nil,
+    },
+
+    use_icons = true
 })
 
 --- mini surround ---
@@ -73,11 +84,15 @@ MiniPick.setup()
 MiniExtra.setup()
 
 
-local MiniIcons = require("mini.icons").setup({
+local MiniIcons = require("mini.icons")
+
+
+MiniIcons.setup({
     style = 'glyph',
 })
 
 MiniIcons.tweak_lsp_kind()
+
 pcall(function() MiniIcons.mock_nvim_web_devicons() end)
 
 
@@ -108,17 +123,17 @@ MiniSnippets.start_lsp_server({ match = false })
 --- mini diff and fugitive ---
 local MiniDiff = require("mini.diff")
 MiniDiff.setup({
-	source = MiniDiff.gen_source.git({ index = false }),
+    source = MiniDiff.gen_source.git({ index = false }),
 })
 
 
-    -- Integración de Git para ver cambios en el margen izquierdo
-    require("mini.diff").setup({
-        view = {
-            -- Muestra los signos en la barra lateral de cambios de Vim
-            style = "sign",
-        }
-    })
+-- Integración de Git para ver cambios en el margen izquierdo
+require("mini.diff").setup({
+    view = {
+        -- Muestra los signos en la barra lateral de cambios de Vim
+        style = "sign",
+    }
+})
 
 
 vim.keymap.set("n", "<leader>gg", "<cmd>tabnew | Git | only<cr>", { desc = "Fugitive Full Page New Tab" })

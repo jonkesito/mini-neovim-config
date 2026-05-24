@@ -9,4 +9,3 @@ require("commands")
 require("treesitter")
 require("lsp")
 
-vim.cmd.colorscheme("moonfly")

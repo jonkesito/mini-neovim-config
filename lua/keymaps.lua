@@ -36,38 +36,44 @@ vim.keymap.set("n", "<leader>u", function()
     require("undotree").open()
 end, { desc = "Toggle Builtin Undotree" })
 
--- Crear un autocomando para archivos de Python
+-- =====================================================================
+-- SISTEMA DE FORMATEO BLINDADO (EVITA ALERTAS DE "NO MATCHING SERVERS")
+-- =====================================================================
+
+-- 1. 🐍 PYTHON: Usar Ruff de forma directa en el sistema
 vim.api.nvim_create_autocmd("FileType", {
     pattern = "python",
     callback = function()
-        -- Si el programa 'black' existe en tu Arch Linux...
-        if vim.fn.executable("black") == 1 then
-            -- Mapeamos <Leader>f para que ejecute black de forma nativa e invisible
-            vim.keymap.set("n", "<leader>f", "<CMD>%!black -q -<CR>", { buffer = true, silent = true, desc = "Formatear Python con Black" })
+        if vim.fn.executable("ruff") == 1 then
+            vim.keymap.set("n", "<leader>f", "<CMD>write | silent !ruff check --select F401 --fix % | silent !ruff format % | edit!<CR>", { buffer = true, silent = true, desc = "Formatear con Ruff" })
         end
     end,
 })
 
--- Crear un autocomando exclusivo para desarrollo Web (TypeScript, JavaScript, etc.)
+-- 2. 📦 WEB / VUE: Usar Prettier de forma directa en el sistema
 vim.api.nvim_create_autocmd("FileType", {
-    pattern = { "typescript", "javascript", "vue", "typescriptreact", "javascriptreact", "json", "html", "css" },
+    pattern = { "typescript", "javascript", "typescriptreact", "javascriptreact", "json", "html", "css", "vue" },
     callback = function()
-        -- Verificar si Prettier está instalado globalmente en la computadora
         if vim.fn.executable("prettier") == 1 then
-            -- Mapear <Leader>f para pasar todo el búfer (%!) a través de Prettier enviando el tipo de archivo (parser)
-            vim.keymap.set("n", "<leader>f", function()
-                -- Obtener la extensión actual del archivo para que Prettier aplique las reglas correctas
-                local ft = vim.bo.filetype
-                -- Traducir tipos de Neovim a Parsers oficiales de Prettier
-                if ft == "typescript" or ft == "typescriptreact" then ft = "typescript" end
-                if ft == "javascript" or ft == "javascriptreact" then ft = "babel" end
-                
-                -- Ejecutar el filtro Unix de forma silenciosa en Neovim
-                vim.cmd([[%!prettier --stdin-filepath ]] .. vim.fn.expand("%"))
-            end, { buffer = true, silent = true, desc = "Formatear con Prettier" })
+            vim.keymap.set("n", "<leader>f", "<CMD>write | silent %!prettier --stdin-filepath %<CR>", { buffer = true, silent = true, desc = "Formatear con Prettier" })
         end
     end,
 })
 
-
+-- 3. 🌙 LUA: Forzar el formateo a través del cliente específico lua_ls
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = "lua",
+    callback = function()
+        vim.keymap.set("n", "<leader>f", function()
+            -- Busca activamente si lua_ls está vivo en este archivo antes de disparar la acción
+            local clients = vim.lsp.get_clients({ name = "lua_ls", bufnr = 0 })
+            if #clients > 0 then
+                vim.lsp.buf.format({ name = "lua_ls", async = true })
+            else
+                -- Si el LSP aún está cargando en segundo plano, usamos el formateador interno de Vim como plan B
+                vim.cmd("normal! gg=G")
+            end
+        end, { buffer = true, silent = true, desc = "Formatear Lua de forma segura" })
+    end,
+})
 

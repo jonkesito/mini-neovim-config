@@ -26,13 +26,14 @@ vim.api.nvim_create_autocmd("LspAttach", {
         vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)         -- Saltar al error anterior
         vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts)         -- Saltar al siguiente error
 
-        -- [Formateo de código automático]
-        -- Si el servidor soporta formateo, presiona <Leader>f para ordenar tu código
+               -- [Formateador Nativo Seguro]
+        -- Solo registra el atajo <Leader>f si el servidor LSP de VERDAD sabe formatear
         if client and client.supports_method("textDocument/formatting") then
             vim.keymap.set("n", "<leader>f", function()
-                vim.lsp.buf.format({ async = true })
+                vim.lsp.buf.format({ id = client.id, async = true })
             end, opts)
         end
+
     end,
 })
 
@@ -63,9 +64,15 @@ for _, server in ipairs(servers) do
 
         -- Tratamiento específico para aislar las alertas globales en la API de Neovim (Lua)
         if server == "lua-language-server" then
+            config.name = "lua_ls"
             config.cmd = { "lua-language-server" }
             config.settings = {
-                Lua = { diagnostics = { globals = { "vim" } } }
+                Lua = { diagnostics = { globals = { "vim" } } },
+                format = {enable = true, defaultConfig = { 
+                    indent_style = "space",
+                    indent_size = 4,
+                    continuation_indent_size = 4
+                }}
             }
         elseif server == "pyright-langserver" then
             config.cmd = { "pyright-langserver", "--stdio" }
